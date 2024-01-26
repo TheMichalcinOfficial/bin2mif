@@ -11,7 +11,7 @@
 #include <stdlib.h>     // EXIT_SUCCESS, NULL, strtol, strtoull
 
 #include <err.h>        // err, errx, warn, warnx
-#include <errno.h>      // errno, ERANGE
+#include <errno.h>      // errno, ERANGE, EINVAL
 
 #include <getopt.h>     // getopt_long
 
@@ -55,7 +55,7 @@ static const char *OPTSTRING = "w:d:o:h";
 static const char *ERROR_MSG[] =
 {
     "no error",
-    "bad number format",
+    "bad number format \"%s\"",
     "integer variable range overflow",
     "invalid command line arguments",
     "failed to open file \"%s\"",
@@ -72,9 +72,8 @@ byte str_to_byte(const char *str)
     char *end = NULL;
     long num = strtol(str, &end, 10);
 
-    if (*end != '\0') { errx(BAD_NUMBER_FORMAT, ERROR_MSG[BAD_NUMBER_FORMAT]); }
-
-    if (num < 0 || num > UINT8_MAX) { errx(OVERFLOW_ERROR, ERROR_MSG[OVERFLOW_ERROR]); }
+    if (*end != '\0')               { errno = EINVAL; return -1; }
+    if (num < 0 || num > UINT8_MAX) { errno = ERANGE; return -1; }
 
     return (byte) num;
 }
@@ -86,9 +85,8 @@ long long str_to_ll(const char *str)
     char *end = NULL;
     long long num = strtoll(str, &end, 10);
 
-    if (*end != '\0') { errx(BAD_NUMBER_FORMAT, ERROR_MSG[BAD_NUMBER_FORMAT]); }
-
-    if (errno == ERANGE) { err(OVERFLOW_ERROR, ERROR_MSG[OVERFLOW_ERROR]); }
+    if (*end != '\0')    { errno = EINVAL; return -1; }
+    if (errno == ERANGE) { return -1; }
 
     return num;
 }
@@ -278,10 +276,18 @@ int main(int argc, char *argv[])
         {
         case 'w':
             width = str_to_byte(optarg);
+            if (errno != 0)
+            {
+                err(BAD_NUMBER_FORMAT, ERROR_MSG[BAD_NUMBER_FORMAT], optarg);
+            }
             break;
 
         case 'd':
             depth = str_to_ll(optarg);
+            if (depth < 0)
+            {
+                err(BAD_NUMBER_FORMAT, ERROR_MSG[BAD_NUMBER_FORMAT], optarg);
+            }
             break;
 
         case 'o':
