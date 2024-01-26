@@ -157,7 +157,7 @@ long long generate_mif_content(int in_fd, int out_fd, long long depth, byte widt
                 return addr;
             }
         }
-        else if (words_read == 0 && remainder_len == 0)
+        if (words_read == 0 && remainder_len == 0)
         {
             warnx("unexpected EOF");
             return addr;
