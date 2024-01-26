@@ -293,7 +293,8 @@ int main(int argc, char *argv[])
 
         case '?':
         default:
-            err(INVALID_ARGUMENTS, ERROR_MSG[INVALID_ARGUMENTS]);
+            (void) dprintf(STDOUT_FILENO, "\n%s", HELP_MESSAGE);
+            return INVALID_ARGUMENTS;
         }
     }
 
