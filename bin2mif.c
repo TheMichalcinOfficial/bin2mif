@@ -44,7 +44,8 @@ static const char *ERROR_MSG[] =
     "failed to open file",
     "failed to close file",
     "failed to generate .mif file",
-    "%lld words were requested, but only %lld could be generated"
+    "%lld words were requested, but only %lld could be generated",
+    NULL
 };
 
 ////////////////////////////////// Utilities //////////////////////////////////
