@@ -237,7 +237,8 @@ long long generate_mif(int in_fd, int out_fd, long long depth, byte width)
         return -1;
     }
     if (depth < 0) { depth = in_file_size; }    // desired depth equals the file size
-    else if (bytes_requested > in_file_size)    // file is too short
+    else if (in_file_size != -2 &&
+             in_file_size < bytes_requested)    // file is too short
     {
         warnx("%lld bytes were requested, but the input file only contains %ld",
              bytes_requested, in_file_size);
