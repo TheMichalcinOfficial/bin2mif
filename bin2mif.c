@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
     if (argc >= 3)
     {
         depth = str_to_ll(argv[1]);
-        width = str_to_uint8_t(argv[2]);
+        width = str_to_byte(argv[2]);
     }
     if (argc >= 4)  { in_filename  = argv[3]; }
     if (argc == 5)  { out_filename = argv[4]; }
