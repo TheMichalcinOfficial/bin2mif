@@ -24,9 +24,12 @@ typedef uint8_t byte;
 #define INPUT_BUFFER_SIZE 128   // words
 
 static const char *HELP_MESSAGE = \
-    "Usage: bin2mif <DEPTH> <WIDTH> <in_file> <out_file>\n"
-    "DEPTH - number of words, each <WIDTH> bits wide\n"
-    "WIDTH - has to be a multiple of 8\n";
+    "Usage: bin2mif [OPTIONS] [in_file]\n"
+    "-w, --width <WIDTH>\thas to be a multiple of 8\t\t(default is 8 bits)\n"
+    "-d, --depth <DEPTH>\tnumber of words, each <WIDTH> bits wide"
+        "\t(default is the input file size)\n"
+    "-o, --output <FILE>\twrite output to file\t\t\t(default is stdout)\n"
+    "-h, --help\t\tview this message\n";
 
 static struct option LONG_OPTIONS[] = {
     /*   NAME      ARGUMENT           FLAG  SHORTNAME */
