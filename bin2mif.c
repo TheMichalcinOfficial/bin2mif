@@ -1,19 +1,19 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include <stdio.h>      // dprintf
-#include <unistd.h>     // STDOUT_FILENO, STDERR_FILENO
+#include <stdio.h>      // dprintf, ssize_t, off_t
+#include <unistd.h>     // STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO
 #include <fcntl.h>      // open, close
 #include <sys/stat.h>   // struct stat, fstat
 
 #include <stdbool.h>    // bool
 #include <string.h>     // strcmp, memcpy
 #include <stdint.h>     // uint8_t, UINT8_MAX
-#include <stdlib.h>     // EXIT_SUCCESS, NULL, strtol, strtoull
+#include <stdlib.h>     // EXIT_SUCCESS, NULL, strtol, strtoll, size_t, exit
 
 #include <err.h>        // err, errx, warn, warnx
 #include <errno.h>      // errno, ERANGE, EINVAL
 
-#include <getopt.h>     // getopt_long
+#include <getopt.h>     // getopt_long, struct option
 
 //////////////////////////////////// Typedefs /////////////////////////////////
 
