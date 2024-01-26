@@ -42,6 +42,7 @@ static const char *ERROR_MSG[] =
     "integer variable range overflow",
     "invalid command line arguments",
     "failed to open file",
+    "failed to close file",
     "failed to generate .mif file",
     "%lld words were requested, but only %lld could be generated"
 };
