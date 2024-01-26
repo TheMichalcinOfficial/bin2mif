@@ -3,6 +3,7 @@
 #include <stdio.h>      // dprintf
 #include <unistd.h>     // STDOUT_FILENO
 #include <fcntl.h>      // open, close
+#include <sys/stat.h>   // struct stat, fstat
 
 #include <stdbool.h>    // bool
 #include <string.h>     // strcmp, memcpy
@@ -126,6 +127,22 @@ unsigned int num_len(unsigned long long num, byte base)
     num /= base;
     while (num > 0) { num /= base; ++len; }
     return len;
+}
+
+/*
+* Return value:
+* -1 if an error is encountered
+* -2 if the file is not a regular file
+* <n> where <n> is the size of the file in bytes
+*/
+off_t file_size(int fd)
+{
+    struct stat file_stat;
+
+    if (fstat(fd, &file_stat) == -1) { return -1; }
+    else if (!S_ISREG(file_stat.st_mode)) { return -2; }
+
+    return file_stat.st_size;
 }
 
 ////////////////////////////////// Generator //////////////////////////////////
