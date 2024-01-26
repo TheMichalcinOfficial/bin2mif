@@ -218,6 +218,28 @@ long long generate_mif_content(int in_fd, int out_fd, long long depth, byte widt
 
 long long generate_mif(int in_fd, int out_fd, long long depth, byte width)
 {
+    const long long bytes_requested = depth * width / 8;
+    off_t in_file_size = file_size(in_fd);
+
+    // Argument validation
+    if (in_file_size == -1)                     // system error
+    {
+        warn("getting file size");
+        return -1;
+    }
+    if (in_file_size == -2 && depth < 0)        // reading from stdin; depth unknown
+    {
+        errno = EINVAL;
+        warn("memory depth has to be given when reading from stdin");
+        return -1;
+    }
+    if (depth < 0) { depth = in_file_size; }    // desired depth equals the file size
+    else if (bytes_requested > in_file_size)    // file is too short
+    {
+        warnx("%lld bytes were requested, but the input file only contains %ld",
+             bytes_requested, in_file_size);
+    }
+
     if (!generate_mif_header(out_fd, depth, width)) { return -1; }
 
     // Fill in the content
@@ -239,8 +261,8 @@ long long generate_mif(int in_fd, int out_fd, long long depth, byte width)
 int main(int argc, char *argv[])
 {
     // Command line parameters
-    long long depth = 0;
-    byte width = 0;
+    long long depth = -1;
+    byte width = 8;
     const char *in_filename = "-";
     const char *out_filename = NULL;
 
@@ -306,12 +328,7 @@ int main(int argc, char *argv[])
         (void) safe_close(&out_fd);
 
         errno = saved_errno;
-        if (words_written < 0) { errx(GENRATOR_FAILURE, ERROR_MSG[GENRATOR_FAILURE]); }
-        else
-        {
-            errx(GENERATOR_EARLY_STOP, ERROR_MSG[GENERATOR_EARLY_STOP],
-                 depth, words_written);
-        }
+        if (words_written < 0) { exit(GENRATOR_FAILURE); }
     }
 
     int retval = 0;
