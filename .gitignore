@@ -53,3 +53,7 @@ dkms.conf
 
 # Main executable
 bin2mif
+
+# VS Code
+.vscode/*
+
