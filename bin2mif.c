@@ -58,8 +58,8 @@ static const char *ERROR_MSG[] =
     "bad number format",
     "integer variable range overflow",
     "invalid command line arguments",
-    "failed to open file",
-    "failed to close file",
+    "failed to open file \"%s\"",
+    "failed to close file \"%s\"",
     "failed to generate .mif file",
     "%lld words were requested, but only %lld could be generated",
     NULL
@@ -307,7 +307,10 @@ int main(int argc, char *argv[])
                  : STDIN_FILENO
     );
 
-    if (in_fd < 0) { err(FILE_OPEN_FAILURE, ERROR_MSG[FILE_OPEN_FAILURE]); }
+    if (in_fd < 0)
+    {
+        err(FILE_OPEN_FAILURE, ERROR_MSG[FILE_OPEN_FAILURE], in_filename);
+    }
 
     int out_fd = (out_filename != NULL
                   ? open(out_filename, O_WRONLY | O_TRUNC | O_CREAT, 0666)
@@ -320,7 +323,7 @@ int main(int argc, char *argv[])
         (void) safe_close(&in_fd);
 
         errno = saved_errno;
-        err(FILE_OPEN_FAILURE, ERROR_MSG[FILE_OPEN_FAILURE]);
+        err(FILE_OPEN_FAILURE, ERROR_MSG[FILE_OPEN_FAILURE], out_filename);
     }
 
     // Generate .mif file
