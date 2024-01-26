@@ -7,10 +7,12 @@
 #include <stdbool.h>    // bool
 #include <string.h>     // strcmp, memcpy
 #include <stdint.h>     // uint8_t, UINT8_MAX
-#include <stdlib.h>     // NULL, strtol, strtoull
+#include <stdlib.h>     // EXIT_SUCCESS, NULL, strtol, strtoull
 
 #include <err.h>        // err, errx, warn, warnx
 #include <errno.h>      // errno, ERANGE
+
+#include <getopt.h>     // getopt_long
 
 //////////////////////////////////// Typedefs /////////////////////////////////
 
@@ -24,6 +26,17 @@ static const char *HELP_MESSAGE = \
     "Usage: bin2mif <DEPTH> <WIDTH> <in_file> <out_file>\n"
     "DEPTH - number of words, each <WIDTH> bits wide\n"
     "WIDTH - has to be a multiple of 8\n";
+
+static struct option LONG_OPTIONS[] = {
+    /*   NAME      ARGUMENT           FLAG  SHORTNAME */
+        {"width",  required_argument, NULL, 'w'},
+        {"depth",  required_argument, NULL, 'd'},
+        {"output", required_argument, NULL, 'o'},
+        {"help",   no_argument,       NULL, 'h'},
+        {NULL,     0,                 NULL, 0}
+    };
+
+static const char *OPTSTRING = "w:d:o:h";
 
 //////////////////////////////////// Errors ///////////////////////////////////
 
@@ -211,33 +224,53 @@ int main(int argc, char *argv[])
     // Command line parameters
     long long depth = 0;
     byte width = 0;
-    const char *in_filename = NULL;
+    const char *in_filename = "-";
     const char *out_filename = NULL;
 
     // Parse command line arguments
-    if (argc < 3 || argc > 5 ||
-        strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0)
+    char chr = '\0';
+    while ((chr = getopt_long(argc, argv, OPTSTRING, LONG_OPTIONS, NULL)) >= 0)
     {
-        (void) dprintf(STDOUT_FILENO, HELP_MESSAGE);
+        switch (chr)
+        {
+        case 'w':
+            width = str_to_byte(optarg);
+            break;
+
+        case 'd':
+            depth = str_to_ll(optarg);
+            break;
+
+        case 'o':
+            out_filename = optarg;
+            break;
+
+        case 'h':
+            (void) dprintf(STDOUT_FILENO, HELP_MESSAGE);
+            return EXIT_SUCCESS;
+
+        case '?':
+        default:
+            err(INVALID_ARGUMENTS, ERROR_MSG[INVALID_ARGUMENTS]);
+        }
     }
-    if (argc < 2) { errx(INVALID_ARGUMENTS, ERROR_MSG[INVALID_ARGUMENTS]); }
-    
-    if (argc >= 3)
-    {
-        depth = str_to_ll(argv[1]);
-        width = str_to_byte(argv[2]);
-    }
-    if (argc >= 4)  { in_filename  = argv[3]; }
-    if (argc == 5)  { out_filename = argv[4]; }
+
+    if (optind < argc && argc - optind == 1) { in_filename = argv[optind++]; }
+    else if (optind < argc) { err(INVALID_ARGUMENTS, ERROR_MSG[INVALID_ARGUMENTS]); }
 
     // Open files
-    int in_fd = in_filename != NULL ? open(in_filename, O_RDONLY) : STDIN_FILENO;
+    int in_fd = (strcmp(in_filename, "-") != 0
+                 ? open(in_filename, O_RDONLY)
+                 : STDIN_FILENO
+    );
+
     if (in_fd < 0) { err(FILE_OPEN_FAILURE, ERROR_MSG[FILE_OPEN_FAILURE]); }
 
     int out_fd = (out_filename != NULL
                   ? open(out_filename, O_WRONLY | O_TRUNC | O_CREAT, 0666)
                   : STDOUT_FILENO
     );
+
     if (out_fd < 0)
     {
         int saved_errno = errno;
@@ -263,7 +296,7 @@ int main(int argc, char *argv[])
                  depth, words_written);
         }
     }
-    
+
     int retval = 0;
 
     // Free resources
