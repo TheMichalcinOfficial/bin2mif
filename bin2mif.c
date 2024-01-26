@@ -1,7 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>      // dprintf
-#include <unistd.h>     // STDOUT_FILENO
+#include <unistd.h>     // STDOUT_FILENO, STDERR_FILENO
 #include <fcntl.h>      // open, close
 #include <sys/stat.h>   // struct stat, fstat
 
@@ -288,12 +288,12 @@ int main(int argc, char *argv[])
             break;
 
         case 'h':
-            (void) dprintf(STDOUT_FILENO, HELP_MESSAGE);
+            (void) dprintf(STDERR_FILENO, HELP_MESSAGE);
             return EXIT_SUCCESS;
 
         case '?':
         default:
-            (void) dprintf(STDOUT_FILENO, "\n%s", HELP_MESSAGE);
+            (void) dprintf(STDERR_FILENO, "\n%s", HELP_MESSAGE);
             return INVALID_ARGUMENTS;
         }
     }
