@@ -234,7 +234,7 @@ long long generate_mif(int in_fd, int out_fd, long long depth, byte width)
         warn("memory depth has to be given when reading from stdin");
         return -1;
     }
-    if (depth < 0) { depth = in_file_size; }    // desired depth equals the file size
+    if (depth < 0) { depth = in_file_size / (width / 8); }    // desired depth equals the file size
     else if (in_file_size != -2 &&
              in_file_size < bytes_requested)    // file is too short
     {
